@@ -4,12 +4,12 @@ import { insuranceClaimsData } from "../data/insurance-data";
 export default function Home() {
   // Define columns with exact widths from your design
   const columns: TableColumn[] = [
-    { key: 'patient', label: 'Patient', width: '72px' },
-    { key: 'serviceDate', label: 'Service Date', width: '92px' },
+    { key: 'patient', label: 'Patient', width: '110px', sortable: true },
+    { key: 'serviceDate', label: 'Service Date', width: '92px', sortable: true },
     { key: 'insuranceCarrier', label: 'Insurance Carrier', width: '141px' },
     { key: 'amount', label: 'Amount', width: '49px' },
-    { key: 'status', label: 'Status', width: '126px' },
-    { key: 'lastUpdated', label: 'Last Updated', width: '92px' },
+    { key: 'status', label: 'Status', width: '126px', sortable: true },
+    { key: 'lastUpdated', label: 'Last Updated', width: '92px', sortable: true },
     { key: 'user', label: 'User', width: '30px' },
     { key: 'dateSent', label: 'Date Sent', width: '92px' },
     { key: 'dateSentOrig', label: 'Date Sent Orig', width: '91px' },
