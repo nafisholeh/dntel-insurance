@@ -66,7 +66,7 @@ export default function TableFooter({
           <select
             value={rowsPerPage}
             onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
-            className="appearance-none bg-white border border-[#17533b14] rounded-[10px] px-3 py-2 pr-8 text-sm text-[#1A6444] text-end font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-center drop-shadow-[0px_1px_1px_#112a241f]"
+            className="appearance-none bg-white border border-[#17533b14] rounded-[10px] px-3 py-2 pr-8 text-sm text-[#1A6444] text-end font-medium focus:outline-none focus:ring-2 focus:ring-[#1A6444] focus:border-transparent flex items-center justify-center drop-shadow-[0px_1px_1px_#112a241f]"
           >
             {rowsPerPageOptions.map((option) => (
               <option key={option} value={option}>
