@@ -13,7 +13,7 @@ export default function UserColumn({
 }: UserColumnProps) {
   return (
     <div 
-      className="w-[30px] h-[28px] bg-[#E0FEEF] rounded-[14px] flex flex-col justify-center items-center py-[7px] px-[3px] text-xs text-[#196443] font-semibold"
+      className="w-[30px] h-7 bg-[#E0FEEF] rounded-2xl flex flex-col justify-center items-center text-xs text-[#196443] font-semibold"
     >
       {initials}
     </div>

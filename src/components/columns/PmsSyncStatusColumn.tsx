@@ -34,7 +34,7 @@ export default function PmsSyncStatusColumn({
   return (
     <div className="text-sm w-full">
       <div 
-        className={`flex flex-row justify-center items-center py-1 gap-[6px] h-[24px] rounded ${
+        className={`flex flex-row justify-center items-center py-1 gap-1.5 h-6 rounded ${
           isSynced ? 'bg-[#F0F9EB]' : 'bg-[#EAEAEA]'
         }`}
       >

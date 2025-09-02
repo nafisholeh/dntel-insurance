@@ -109,7 +109,7 @@ export default function ClaimRow({ data, columns }: ClaimRowProps) {
 
   return (
     <div 
-      className="grid gap-5 px-[24px] border-b border-[#17533b0a]"
+      className="grid gap-5 px-6 border-b border-[#17533b0a]"
       style={{ gridTemplateColumns: gridTemplate }}
     >
       {columns.map((column) => (

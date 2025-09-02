@@ -38,12 +38,12 @@ export default function DataTable({ columns, data, className = "" }: DataTablePr
   const minWidth = totalColumnWidth + gapSpace + 44; // extra padding from left and right 
 
   return (
-    <div className="w-full bg-white rounded-[20px] shadow-lg overflow-hidden" style={{ maxWidth: `${minWidth}px` }}>
+    <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden" style={{ maxWidth: `${minWidth}px` }}>
       <div className={`overflow-x-auto ${className}`}>
         <div>
           {/* Header Row */}
           <div 
-            className="grid gap-5 px-[24px]"
+            className="grid gap-5 px-6"
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {columns.map((column) => (
