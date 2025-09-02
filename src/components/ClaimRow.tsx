@@ -4,6 +4,7 @@ import InsuranceCarrierColumn from "./columns/InsuranceCarrierColumn";
 import LastUpdatedColumn from "./columns/LastUpdatedColumn";
 import UserColumn from "./columns/UserColumn";
 import PmsSyncStatusColumn from "./columns/PmsSyncStatusColumn";
+import { formatDisplayDate } from "../utils/dateFormatter";
 
 // Type definitions for strict typing
 export type PlanCategory = 'Primary' | 'Secondary';
@@ -98,10 +99,12 @@ export default function ClaimRow({ data, columns }: ClaimRowProps) {
       }
       
       default: {
-        // For other simple text columns (serviceDate, dateSent, dateSentOrig)
+        // For date columns (serviceDate, dateSent, dateSentOrig), format them properly
         const value = data[columnKey as keyof ClaimRowData] as string;
+        const isDateColumn = columnKey === 'serviceDate' || columnKey === 'dateSent' || columnKey === 'dateSentOrig';
+        const displayValue = isDateColumn ? formatDisplayDate(value) : value;
         return (
-          <div className="text-[#112A24] text-sm font-medium">{value}</div>
+          <div className="text-[#112A24] text-sm font-medium">{displayValue}</div>
         );
       }
     }
