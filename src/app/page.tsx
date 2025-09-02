@@ -1,103 +1,115 @@
-import Image from "next/image";
+import DataTable, { TableColumn } from "../components/DataTable";
+import { ClaimRowData } from "../components/ClaimRow";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // Define columns with exact widths from your design
+  const columns: TableColumn[] = [
+    { key: 'patient', label: 'Patient', width: '72px' },
+    { key: 'serviceDate', label: 'Service Date', width: '92px' },
+    { key: 'insuranceCarrier', label: 'Insurance Carrier', width: '141px' },
+    { key: 'amount', label: 'Amount', width: '49px' },
+    { key: 'status', label: 'Status', width: '126px' },
+    { key: 'lastUpdated', label: 'Last Updated', width: '92px' },
+    { key: 'user', label: 'User', width: '30px' },
+    { key: 'dateSent', label: 'Date Sent', width: '92px' },
+    { key: 'dateSentOrig', label: 'Date Sent Orig', width: '91px' },
+    { key: 'pmsSyncStatus', label: 'PMS Sync Status', width: '121px' },
+    { key: 'provider', label: 'Provider', width: '95px' },
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const data: ClaimRowData[] = [
+    {
+      patient: {
+        name: 'First Last',
+        id: '11060'
+      },
+      serviceDate: 'July 00, 2025',
+      insuranceCarrier: {
+        carrierName: 'BCBS OF COLORADO FEP PPO INN',
+        planCategory: 'Primary'
+      },
+      amount: '$00,000',
+      status: 'NCOF - RESUBMITTED',
+      lastUpdated: {
+        date: 'May 28, 2030',
+        time: '11:36 AM'
+      },
+      user: 'AA',
+      dateSent: 'Aug 28, 2025',
+      dateSentOrig: 'Aug 28, 2025',
+      pmsSyncStatus: {
+        status: 'Not synced',
+        description: 'Status modified today',
+        isSynced: false
+      },
+      provider: {
+        name: 'Dr. First Last',
+        id: '56712349911'
+      }
+    },
+    {
+      patient: {
+        name: 'Jane Doe',
+        id: '22051'
+      },
+      serviceDate: 'Aug 15, 2025',
+      insuranceCarrier: {
+        carrierName: 'AETNA PPO NETWORK',
+        planCategory: 'Primary'
+      },
+      amount: '$150.00',
+      status: 'PAID',
+      lastUpdated: {
+        date: 'Sep 01, 2025',
+        time: '02:15 PM'
+      },
+      user: 'JD',
+      dateSent: 'Aug 20, 2025',
+      dateSentOrig: 'Aug 20, 2025',
+      pmsSyncStatus: {
+        status: 'Synced',
+        description: 'Last sync: 2 hours ago',
+        isSynced: true
+      },
+      provider: {
+        name: 'Dr. Jane Smith',
+        id: '98765432101'
+      }
+    },
+    {
+      patient: {
+        name: 'Robert Wilson',
+        id: '33042'
+      },
+      serviceDate: 'Sep 01, 2025',
+      insuranceCarrier: {
+        carrierName: 'HUMANA HMO NETWORK',
+        planCategory: 'Secondary'
+      },
+      amount: '$75.00',
+      status: 'PENDING',
+      lastUpdated: {
+        date: 'Sep 02, 2025',
+        time: '09:30 AM'
+      },
+      user: 'RW',
+      dateSent: 'Sep 01, 2025',
+      dateSentOrig: 'Sep 01, 2025',
+      pmsSyncStatus: {
+        status: 'Syncing',
+        description: 'Sync in progress',
+        isSynced: false
+      },
+      provider: {
+        name: 'Dr. Michael Brown',
+        id: '11223344556'
+      }
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#1E1E1E] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <DataTable columns={columns} data={data} />
     </div>
   );
 }
