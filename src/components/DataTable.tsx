@@ -66,25 +66,25 @@ export default function DataTable({
   const minWidth = totalColumnWidth + gapSpace + 44; // extra padding from left and right 
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden" style={{ maxWidth: `${minWidth}px` }}>
-      <div className={`overflow-x-auto ${className}`}>
-        <div>
-          {/* Header Row */}
-          <div 
-            className="grid gap-5 px-6"
-            style={{ gridTemplateColumns: gridTemplate }}
-          >
-            {columns.map((column) => (
-              <div 
-                key={`header-${column.key}`}
-                className="text-left flex items-center py-5 font-medium text-sm text-[#546661]"
-              >
-                {column.label}
-              </div>
-            ))}
-          </div>
+    <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden" style={{ maxWidth: `${minWidth}px`, maxHeight: 'calc(100vh - 2rem)' }}>
+      <div className={`h-full flex flex-col ${className}`}>
+        {/* Header Row */}
+        <div 
+          className="grid gap-5 px-6 bg-white flex-shrink-0"
+          style={{ gridTemplateColumns: gridTemplate }}
+        >
+          {columns.map((column) => (
+            <div 
+              key={`header-${column.key}`}
+              className="text-left flex items-center py-5 font-medium text-sm text-[#546661]"
+            >
+              {column.label}
+            </div>
+          ))}
+        </div>
 
-          {/* Data Rows using ClaimRow component */}
+        {/* Data Rows */}
+        <div className="flex-1 overflow-auto">
           {paginatedData.map((row, rowIndex) => (
             <ClaimRow 
               key={rowIndex}
@@ -94,14 +94,16 @@ export default function DataTable({
           ))}
         </div>
         
-        {/* Table Footer with Pagination */}
-        <TableFooter
-          currentPage={currentPage}
-          totalPages={totalPages}
-          rowsPerPage={rowsPerPage}
-          onPageChange={setCurrentPage}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
+        {/* Table Footer */}
+        <div className="flex-shrink-0">
+          <TableFooter
+            currentPage={currentPage}
+            totalPages={totalPages}
+            rowsPerPage={rowsPerPage}
+            onPageChange={setCurrentPage}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          />
+        </div>
       </div>
     </div>
   );

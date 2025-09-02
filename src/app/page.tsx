@@ -18,8 +18,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#1E1E1E] flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      <DataTable columns={columns} data={insuranceClaimsData} />
+    <div className="min-h-screen bg-[#1E1E1E] p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-none flex justify-center">
+        <DataTable columns={columns} data={insuranceClaimsData} />
+      </div>
     </div>
   );
 }
