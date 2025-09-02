@@ -7,6 +7,7 @@ import { TableHeader, TableColumn } from "./TableHeader";
 import { DataRows } from "./DataRows";
 import { PatientFilterPopup, StatusFilterPopup } from "./FilterPopups";
 import { usePopup } from "../hooks/usePopup";
+import EmptyFilterResults from "./EmptyFilterResults";
 
 export interface ServerDataTableProps {
   columns: TableColumn[];
@@ -25,6 +26,7 @@ export interface ServerDataTableProps {
     patientName: string;
     status: ClaimStatus | '';
   };
+  isLoading?: boolean;
   onSort: (column: ColumnKey) => void;
   onFilterChange: (filters: { patientName?: string; status?: ClaimStatus | '' }) => void;
   onPageChange: (page: number) => void;
@@ -38,6 +40,7 @@ export function ServerDataTable({
   pagination,
   sorting,
   filters,
+  isLoading = false,
   onSort,
   onFilterChange,
   onPageChange,
@@ -95,6 +98,9 @@ export function ServerDataTable({
   // Layout calculations
   const gridTemplate = columns.map(col => col.width).join(' ');
   
+  const hasActiveFilters = filters.patientName || filters.status;
+  const showEmptyState = !isLoading && data.length === 0 && hasActiveFilters;
+
   const minWidth = useMemo(() => {
     const totalColumnWidth = columns.reduce((sum, col) => {
       const width = parseInt(col.width.replace('px', ''));
@@ -114,13 +120,14 @@ export function ServerDataTable({
           gridTemplate={gridTemplate}
           sortState={sorting}
           filterState={filters}
-          onSort={onSort}
-          onFilterIconClick={handleFilterIconClick}
+          onSort={isLoading ? () => {} : onSort}
+          onFilterIconClick={isLoading ? () => {} : handleFilterIconClick}
+          disabled={isLoading}
         />
 
         {/* Filter Popups */}
         <PatientFilterPopup
-          isOpen={popup.popupState.type === 'patient' && popup.popupState.isOpen}
+          isOpen={popup.popupState.type === 'patient' && popup.popupState.isOpen && !isLoading}
           position={popup.popupState.position}
           tempPatientNameFilter={tempPatientNameFilter}
           onPatientNameChange={setTempPatientNameFilter}
@@ -129,7 +136,7 @@ export function ServerDataTable({
         />
 
         <StatusFilterPopup
-          isOpen={popup.popupState.type === 'status' && popup.popupState.isOpen}
+          isOpen={popup.popupState.type === 'status' && popup.popupState.isOpen && !isLoading}
           position={popup.popupState.position}
           tempStatusFilter={tempStatusFilter}
           statusOptions={statusOptions}
@@ -139,20 +146,38 @@ export function ServerDataTable({
         />
 
         {/* Overlay to close popup when clicking outside */}
-        {popup.popupState.isOpen && (
+        {popup.popupState.isOpen && !isLoading && (
           <div 
             className="fixed inset-0 z-40"
             onClick={popup.closePopup}
           />
         )}
 
-        {/* Data rows */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <DataRows
-            data={data}
-            columns={columns}
-            startIndex={(pagination.currentPage - 1) * pagination.rowsPerPage}
-          />
+        {/* Data rows with loading overlay */}
+        <div className="flex-1 overflow-y-auto min-h-0 relative">
+          {showEmptyState ? (
+            <EmptyFilterResults
+              currentFilters={filters}
+              onClearFilters={() => onFilterChange({ patientName: '', status: '' })}
+              onShowAll={() => onFilterChange({ patientName: '', status: '' })}
+            />
+          ) : (
+            <DataRows
+              data={data}
+              columns={columns}
+              startIndex={(pagination.currentPage - 1) * pagination.rowsPerPage}
+            />
+          )}
+          
+          {/* Loading overlay only over content area */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1A6444]"></div>
+                <span className="text-[#1A6444] font-medium">Loading...</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -160,8 +185,9 @@ export function ServerDataTable({
           currentPage={pagination.currentPage}
           totalPages={pagination.totalPages}
           rowsPerPage={pagination.rowsPerPage}
-          onPageChange={onPageChange}
-          onRowsPerPageChange={onRowsPerPageChange}
+          onPageChange={isLoading ? () => {} : onPageChange}
+          onRowsPerPageChange={isLoading ? () => {} : onRowsPerPageChange}
+          disabled={isLoading}
         />
       </div>
     </div>

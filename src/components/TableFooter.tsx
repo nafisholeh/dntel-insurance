@@ -4,6 +4,7 @@ export interface TableFooterProps {
   currentPage: number;
   totalPages: number;
   rowsPerPage: number;
+  disabled?: boolean;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
 }
@@ -48,15 +49,16 @@ export default function TableFooter({
   currentPage,
   totalPages,
   rowsPerPage,
+  disabled = false,
   onPageChange,
   onRowsPerPageChange
 }: TableFooterProps) {
   const rowsPerPageOptions = [10, 20, 50, 100];
 
-  const handleFirstPage = () => onPageChange(1);
-  const handlePreviousPage = () => onPageChange(Math.max(1, currentPage - 1));
-  const handleNextPage = () => onPageChange(Math.min(totalPages, currentPage + 1));
-  const handleLastPage = () => onPageChange(totalPages);
+  const handleFirstPage = () => !disabled && onPageChange(1);
+  const handlePreviousPage = () => !disabled && onPageChange(Math.max(1, currentPage - 1));
+  const handleNextPage = () => !disabled && onPageChange(Math.min(totalPages, currentPage + 1));
+  const handleLastPage = () => !disabled && onPageChange(totalPages);
 
   return (
     <div className="flex items-center justify-between px-6 pt-5 pb-4 bg-white">
@@ -65,8 +67,9 @@ export default function TableFooter({
         <div className="relative">
           <select
             value={rowsPerPage}
-            onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
-            className="appearance-none bg-white border border-[#17533b14] rounded-[10px] px-3 py-2 pr-8 text-sm text-[#1A6444] text-end font-medium focus:outline-none focus:ring-2 focus:ring-[#1A6444] focus:border-transparent flex items-center justify-center drop-shadow-[0px_1px_1px_#112a241f]"
+            onChange={(e) => !disabled && onRowsPerPageChange(Number(e.target.value))}
+            disabled={disabled}
+            className={`appearance-none bg-white border border-[#17533b14] rounded-[10px] px-3 py-2 pr-8 text-sm text-[#1A6444] text-end font-medium focus:outline-none focus:ring-2 focus:ring-[#1A6444] focus:border-transparent flex items-center justify-center drop-shadow-[0px_1px_1px_#112a241f] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {rowsPerPageOptions.map((option) => (
               <option key={option} value={option}>
@@ -90,7 +93,7 @@ export default function TableFooter({
         <div className="flex items-center gap-2">
           <button
             onClick={handleFirstPage}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || disabled}
             className="p-2 rounded-[10px] hover:bg-gray-100 border border-[#17533b14] disabled:opacity-50 disabled:cursor-not-allowed text-[#546661] drop-shadow-[0px_1px_1px_#112a241f]"
             aria-label="Go to first page"
           >
@@ -99,7 +102,7 @@ export default function TableFooter({
           
           <button
             onClick={handlePreviousPage}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || disabled}
             className="p-2 rounded-[10px] hover:bg-gray-100 border border-[#17533b14] disabled:opacity-50 disabled:cursor-not-allowed text-[#546661] drop-shadow-[0px_1px_1px_#112a241f]"
             aria-label="Go to previous page"
           >
@@ -108,7 +111,7 @@ export default function TableFooter({
           
           <button
             onClick={handleNextPage}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || disabled}
             className="p-2 rounded-[10px] hover:bg-gray-100 border border-[#17533b14] disabled:opacity-50 disabled:cursor-not-allowed text-[#546661] drop-shadow-[0px_1px_1px_#112a241f]"
             aria-label="Go to next page"
           >
@@ -117,7 +120,7 @@ export default function TableFooter({
           
           <button
             onClick={handleLastPage}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || disabled}
             className="p-2 rounded-[10px] hover:bg-gray-100 border border-[#17533b14] disabled:opacity-50 disabled:cursor-not-allowed text-[#546661] drop-shadow-[0px_1px_1px_#112a241f]"
             aria-label="Go to last page"
           >

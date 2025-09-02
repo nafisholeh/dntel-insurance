@@ -115,16 +115,6 @@ export default function InsuranceClaimsTable({ initialData, columns }: Insurance
     setCurrentPage(1);
   }, [fetchData]);
 
-  // Loading overlay component
-  const LoadingOverlay = () => (
-    <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 rounded-2xl">
-      <div className="flex items-center space-x-3">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1A6444]"></div>
-        <span className="text-[#1A6444] font-medium">Loading...</span>
-      </div>
-    </div>
-  );
-
   // Error display component
   const ErrorDisplay = () => (
     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
@@ -151,29 +141,26 @@ export default function InsuranceClaimsTable({ initialData, columns }: Insurance
     <div className="relative">
       {error && <ErrorDisplay />}
       
-      <div className="relative">
-        {isLoading && <LoadingOverlay />}
-        
-        <ServerDataTable
-          columns={columns}
-          data={data.data}
-          pagination={{
-            currentPage: data.pagination.page,
-            totalPages: data.pagination.totalPages,
-            rowsPerPage: data.pagination.limit,
-            total: data.pagination.total
-          }}
-          sorting={{
-            column: currentSorting.column,
-            direction: currentSorting.column ? currentSorting.direction : null
-          }}
-          filters={currentFilters}
-          onSort={handleSort}
-          onFilterChange={handleFilterChange}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
-      </div>
+      <ServerDataTable
+        columns={columns}
+        data={data.data}
+        pagination={{
+          currentPage: data.pagination.page,
+          totalPages: data.pagination.totalPages,
+          rowsPerPage: data.pagination.limit,
+          total: data.pagination.total
+        }}
+        sorting={{
+          column: currentSorting.column,
+          direction: currentSorting.column ? currentSorting.direction : null
+        }}
+        filters={currentFilters}
+        isLoading={isLoading}
+        onSort={handleSort}
+        onFilterChange={handleFilterChange}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
     </div>
   );
 }

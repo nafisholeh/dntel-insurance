@@ -20,6 +20,7 @@ interface TableHeaderProps {
     patientName: string;
     status: string;
   };
+  disabled?: boolean;
   onSort: (column: ColumnKey) => void;
   onFilterIconClick: (type: 'patient' | 'status', event: React.MouseEvent) => void;
 }
@@ -29,6 +30,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   gridTemplate,
   sortState,
   filterState,
+  disabled = false,
   onSort,
   onFilterIconClick,
 }) => {
@@ -47,8 +49,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             {/* Sort Icon */}
             {column.sortable && (
               <button
-                onClick={() => onSort(column.key)}
-                className="cursor-pointer hover:opacity-75 select-none"
+                onClick={() => !disabled && onSort(column.key)}
+                className={`select-none ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:opacity-75'}`}
+                disabled={disabled}
               >
                 <SortIcon 
                   direction={sortState.column === column.key ? sortState.direction : null} 
@@ -59,16 +62,18 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             {/* Filter Icons */}
             {column.key === 'patient' && (
               <button
-                onClick={(e) => onFilterIconClick('patient', e)}
-                className="cursor-pointer hover:opacity-75"
+                onClick={(e) => !disabled && onFilterIconClick('patient', e)}
+                className={`${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:opacity-75'}`}
+                disabled={disabled}
               >
                 <SearchIcon active={filterState.patientName !== ''} />
               </button>
             )}
             {column.key === 'status' && (
               <button
-                onClick={(e) => onFilterIconClick('status', e)}
-                className="cursor-pointer hover:opacity-75"
+                onClick={(e) => !disabled && onFilterIconClick('status', e)}
+                className={`${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:opacity-75'}`}
+                disabled={disabled}
               >
                 <FilterIcon active={filterState.status !== ''} />
               </button>
