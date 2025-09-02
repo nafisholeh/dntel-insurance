@@ -1,33 +1,49 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ClaimRowData, ClaimStatus } from "./ClaimRow";
+import { ClaimRowData, ClaimStatus, ColumnKey } from "./ClaimRow";
 import TableFooter from "./TableFooter";
 import { TableHeader, TableColumn } from "./TableHeader";
 import { DataRows } from "./DataRows";
 import { PatientFilterPopup, StatusFilterPopup } from "./FilterPopups";
-import { usePagination } from "../hooks/usePagination";
-import { useDataFilter } from "../hooks/useDataFilter";
-import { useDataSort } from "../hooks/useDataSort";
 import { usePopup } from "../hooks/usePopup";
 
-export interface DataTableProps {
+export interface ServerDataTableProps {
   columns: TableColumn[];
   data: ClaimRowData[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    rowsPerPage: number;
+    total: number;
+  };
+  sorting: {
+    column: ColumnKey | null;
+    direction: 'asc' | 'desc' | null;
+  };
+  filters: {
+    patientName: string;
+    status: ClaimStatus | '';
+  };
+  onSort: (column: ColumnKey) => void;
+  onFilterChange: (filters: { patientName?: string; status?: ClaimStatus | '' }) => void;
+  onPageChange: (page: number) => void;
+  onRowsPerPageChange: (rowsPerPage: number) => void;
   className?: string;
-  defaultRowsPerPage?: number;
 }
 
-export default function DataTable({ 
-  columns, 
-  data, 
-  className = "", 
-  defaultRowsPerPage = 10 
-}: DataTableProps) {
-  // Custom hooks for state management
-  const pagination = usePagination<ClaimRowData>({ defaultRowsPerPage });
-  const dataFilter = useDataFilter(data);
-  const dataSort = useDataSort();
+export function ServerDataTable({
+  columns,
+  data,
+  pagination,
+  sorting,
+  filters,
+  onSort,
+  onFilterChange,
+  onPageChange,
+  onRowsPerPageChange,
+  className = ""
+}: ServerDataTableProps) {
   const popup = usePopup();
 
   // Available status options for filtering
@@ -39,43 +55,40 @@ export default function DataTable({
     'PROCESSING'
   ];
 
-  // Process data through filter and sort pipeline
-  const sortedData = useMemo(() => {
-    return dataSort.getSortedData(dataFilter.filteredData);
-  }, [dataFilter.filteredData, dataSort]);
-
-  const currentPageData = useMemo(() => {
-    return pagination.getPaginatedData(sortedData);
-  }, [sortedData, pagination]);
-
-  const totalPages = Math.ceil(sortedData.length / pagination.rowsPerPage);
+  // Temporary filter states for popups
+  const [tempPatientNameFilter, setTempPatientNameFilter] = React.useState<string>('');
+  const [tempStatusFilter, setTempStatusFilter] = React.useState<ClaimStatus | ''>('');
 
   // Event handlers
   const handleFilterIconClick = (type: 'patient' | 'status', event: React.MouseEvent) => {
-    dataFilter.initializeTempFilters(type);
+    // Initialize temp filters with current values
+    if (type === 'patient') {
+      setTempPatientNameFilter(filters.patientName);
+    } else if (type === 'status') {
+      setTempStatusFilter(filters.status);
+    }
     popup.openPopup(type, event);
   };
 
   const handleSearchSubmit = () => {
-    dataFilter.handleFilterChange({ patientName: dataFilter.tempPatientNameFilter });
+    onFilterChange({ patientName: tempPatientNameFilter });
     popup.closePopup();
-    pagination.setCurrentPage(1);
   };
 
   const handleSearchReset = () => {
-    dataFilter.setTempPatientNameFilter('');
-    dataFilter.handleFilterChange({ patientName: '' });
+    setTempPatientNameFilter('');
+    onFilterChange({ patientName: '' });
     popup.closePopup();
   };
 
   const handleStatusApply = () => {
-    dataFilter.handleFilterChange({ status: dataFilter.tempStatusFilter });
+    onFilterChange({ status: tempStatusFilter });
     popup.closePopup();
   };
 
   const handleStatusReset = () => {
-    dataFilter.setTempStatusFilter('');
-    dataFilter.handleFilterChange({ status: '' });
+    setTempStatusFilter('');
+    onFilterChange({ status: '' });
     popup.closePopup();
   };
 
@@ -93,15 +106,15 @@ export default function DataTable({
   }, [columns]);
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden relative" style={{ maxWidth: `${minWidth}px`, maxHeight: 'calc(100vh - 2rem)' }}>
+    <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden relative" style={{ maxWidth: `${minWidth}px`, height: 'calc(100vh - 8rem)' }}>
       <div className={`h-full flex flex-col ${className}`}>
         {/* Header Row */}
         <TableHeader
           columns={columns}
           gridTemplate={gridTemplate}
-          sortState={dataSort.sortState}
-          filterState={dataFilter.filterState}
-          onSort={dataSort.handleSort}
+          sortState={sorting}
+          filterState={filters}
+          onSort={onSort}
           onFilterIconClick={handleFilterIconClick}
         />
 
@@ -109,8 +122,8 @@ export default function DataTable({
         <PatientFilterPopup
           isOpen={popup.popupState.type === 'patient' && popup.popupState.isOpen}
           position={popup.popupState.position}
-          tempPatientNameFilter={dataFilter.tempPatientNameFilter}
-          onPatientNameChange={dataFilter.setTempPatientNameFilter}
+          tempPatientNameFilter={tempPatientNameFilter}
+          onPatientNameChange={setTempPatientNameFilter}
           onApply={handleSearchSubmit}
           onReset={handleSearchReset}
         />
@@ -118,9 +131,9 @@ export default function DataTable({
         <StatusFilterPopup
           isOpen={popup.popupState.type === 'status' && popup.popupState.isOpen}
           position={popup.popupState.position}
-          tempStatusFilter={dataFilter.tempStatusFilter}
+          tempStatusFilter={tempStatusFilter}
           statusOptions={statusOptions}
-          onStatusChange={dataFilter.setTempStatusFilter}
+          onStatusChange={setTempStatusFilter}
           onApply={handleStatusApply}
           onReset={handleStatusReset}
         />
@@ -136,19 +149,19 @@ export default function DataTable({
         {/* Data rows */}
         <div className="flex-1 overflow-y-auto min-h-0">
           <DataRows
-            data={currentPageData}
+            data={data}
             columns={columns}
-            startIndex={pagination.startIndex}
+            startIndex={(pagination.currentPage - 1) * pagination.rowsPerPage}
           />
         </div>
 
         {/* Footer */}
         <TableFooter
           currentPage={pagination.currentPage}
-          totalPages={totalPages}
+          totalPages={pagination.totalPages}
           rowsPerPage={pagination.rowsPerPage}
-          onPageChange={pagination.setCurrentPage}
-          onRowsPerPageChange={pagination.setRowsPerPage}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={onRowsPerPageChange}
         />
       </div>
     </div>

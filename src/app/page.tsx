@@ -1,7 +1,8 @@
-import DataTable, { TableColumn } from "../components/DataTable";
-import { insuranceClaimsData } from "../data/insurance-data";
+import { TableColumn } from "../components/TableHeader";
+import { getInsuranceClaims } from "../lib/insurance-service";
+import InsuranceClaimsTable from "../components/InsuranceClaimsTable";
 
-export default function Home() {
+export default async function Home() {
   // Define columns with exact widths from your design
   const columns: TableColumn[] = [
     { key: 'patient', label: 'Patient', width: '110px', sortable: true },
@@ -17,10 +18,16 @@ export default function Home() {
     { key: 'provider', label: 'Provider', width: '95px' },
   ];
 
+  // Fetch initial data server-side
+  const initialData = await getInsuranceClaims({
+    page: 1,
+    limit: 10,
+  });
+
   return (
     <div className="min-h-screen bg-[#1E1E1E] p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-none flex justify-center">
-        <DataTable columns={columns} data={insuranceClaimsData} />
+        <InsuranceClaimsTable columns={columns} initialData={initialData} />
       </div>
     </div>
   );
