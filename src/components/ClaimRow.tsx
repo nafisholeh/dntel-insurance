@@ -93,7 +93,7 @@ export default function ClaimRow({ data, columns }: ClaimRowProps) {
         // Smaller font size for amount and status columns
         const value = data[columnKey as keyof ClaimRowData] as string;
         return (
-          <div className="text-[#112A24] text-[12px] font-medium">{value}</div>
+          <div className="text-[#112A24] text-xs font-medium">{value}</div>
         );
       }
       

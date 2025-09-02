@@ -25,7 +25,7 @@ export default function InsuranceCarrierColumn({
     <div className="w-full">
       <div className="text-[#112A24] text-sm font-medium">{carrierName}</div>
         <div 
-          className={`${textColor} text-[12px] font-semibold flex flex-row justify-center items-center py-1 mt-2 ${bgColor} rounded w-full`}
+          className={`${textColor} text-xs font-semibold flex flex-row justify-center items-center py-1 mt-2 ${bgColor} rounded w-full`}
         >
           {planCategory}
         </div>

@@ -49,7 +49,7 @@ export default function DataTable({ columns, data, className = "" }: DataTablePr
             {columns.map((column) => (
               <div 
                 key={`header-${column.key}`}
-                className="text-left flex items-center py-5 font-medium text-[14px] text-[#546661]"
+                className="text-left flex items-center py-5 font-medium text-sm text-[#546661]"
               >
                 {column.label}
               </div>

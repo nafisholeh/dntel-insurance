@@ -13,7 +13,7 @@ export default function PatientProviderColumn({ name, id }: PatientProviderColum
   return (
     <div>
       <div className="text-[#112A24] text-sm font-medium">{name}</div>
-      <div className="text-[#B3B3B3] text-[12px] mt-1 font-semibold">ID: {id}</div>
+      <div className="text-[#B3B3B3] text-xs mt-1 font-semibold">ID: {id}</div>
     </div>
   );
 }

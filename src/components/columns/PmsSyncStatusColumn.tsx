@@ -39,11 +39,11 @@ export default function PmsSyncStatusColumn({
         }`}
       >
         {isSynced ? <SyncedIcon /> : <NotSyncedIcon />}
-        <span className={`text-[12px] font-semibold ${isSynced ? 'text-[#01A151]' : 'text-[#838580]'}`}>
+        <span className={`text-xs font-semibold ${isSynced ? 'text-[#01A151]' : 'text-[#838580]'}`}>
           {status}
         </span>
       </div>
-      <div className="text-[#546661] text-[12px] font-medium mt-1">{description}</div>
+      <div className="text-[#546661] text-xs font-medium mt-1">{description}</div>
     </div>
   );
 }
