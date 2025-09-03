@@ -1,9 +1,32 @@
 import { TableColumn } from "../components/TableHeader";
 import { getInsuranceClaims } from "../lib/insurance-service";
-import InsuranceClaimsTable from "../components/InsuranceClaimsTable";
+import ClaimsTableServer from "../components/server/ClaimsTableServer";
+import type { ColumnKey, ClaimStatus } from "../components/ClaimRow";
 
-export default async function Home() {
-  // Define columns with exact widths from your design
+export const dynamic = "force-dynamic";
+
+interface PageSearchParams {
+  page?: string;
+  limit?: string;
+  sortBy?: ColumnKey;
+  sortDirection?: "asc" | "desc";
+  patientName?: string;
+  status?: ClaimStatus;
+}
+
+interface PageProps {
+  searchParams: Promise<PageSearchParams>;
+}
+
+export default async function Home(props: PageProps) {
+  const sp = await props.searchParams;
+  const page = sp.page ? parseInt(sp.page, 10) : 1;
+  const limit = sp.limit ? parseInt(sp.limit, 10) : 10;
+  const sortBy = sp.sortBy ?? undefined;
+  const sortDirection = sp.sortDirection ?? "asc";
+  const patientName = sp.patientName ?? undefined;
+  const status = sp.status ?? undefined;
+
   const columns: TableColumn[] = [
     { key: 'patient', label: 'Patient', width: '110px', sortable: true },
     { key: 'serviceDate', label: 'Service Date', width: '92px', sortable: true },
@@ -18,16 +41,19 @@ export default async function Home() {
     { key: 'provider', label: 'Provider', width: '95px' },
   ];
 
-  // Fetch initial data server-side
-  const initialData = await getInsuranceClaims({
-    page: 1,
-    limit: 10,
+  const data = await getInsuranceClaims({
+    page,
+    limit,
+    sortBy,
+    sortDirection,
+    patientName,
+    status,
   });
 
   return (
     <div className="min-h-screen bg-[#1E1E1E] p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-none flex justify-center">
-        <InsuranceClaimsTable columns={columns} initialData={initialData} />
+        <ClaimsTableServer columns={columns} data={data} />
       </div>
     </div>
   );

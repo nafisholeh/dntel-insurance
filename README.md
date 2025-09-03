@@ -40,78 +40,88 @@ npm run generate-data # Generate sample insurance claims data
 ## 🏗️ Architecture
 
 ### **Server-Side Data Flow**
-- **API Route**: `/api/insurance-claims` handles filtering, sorting, pagination
-- **Static Data**: Generated claims data in `src/data/insurance-data.ts`
-- **Server Components**: Main page fetches initial data server-side
-- **Client Components**: Interactive table with real-time updates
+- **URL-Driven SSR**: `app/page.tsx` reads `searchParams` (page, limit, sortBy, sortDirection, patientName, status)
+- **Static Data**: Build-time dataset in `src/data/insurance-data.ts`, processed on the server via `getInsuranceClaims`
+- **Client Islands**: Header and footer update the URL; empty state clears filters on the client
+- **Streaming**: Suspense boundaries around client islands; rows render on the server for fast TTFB
 
 ### **Component Architecture**
 ```
 app/page.tsx (Server Component)
-├── InsuranceClaimsTable.tsx (Client Wrapper)
-    └── ServerDataTable.tsx (Main Table Logic)
-        ├── TableHeader.tsx (Sorting & Filter Controls)
-        ├── DataRows.tsx (Data Display)
-        ├── FilterPopups.tsx (Patient/Status Filters)
-        ├── EmptyFilterResults.tsx (No Results State)
-        └── TableFooter.tsx (Pagination Controls)
+└── ClaimsTableServer.tsx (Server Composition)
+    ├── client/InteractiveHeader.tsx (Client: sorting + filters; updates URL)
+    ├── DataRows.tsx (Server-rendered data rows)
+    ├── EmptyFilterResults.tsx (Client: clear filters via URL)
+    └── client/InteractiveFooter.tsx (Client: pagination + rows per page)
 ```
 
 ### **Data Service Layer**
-- `insurance-service.ts`: Type-safe API client with proper parameter handling
-- Handles undefined values, empty strings, and error states
-- Automatic retries and proper TypeScript interfaces
+- `insurance-service.ts`: Server-side `getInsuranceClaims` computes filtered/sorted/paginated results from static data
+- Types for responses (pagination, filters, sorting) are shared between server and components
+- No client API calls; URL changes trigger server recomputation via App Router
 
 ## ⚖️ Technical Tradeoffs
 
-### **Filter UX: Popup-Based vs Inline Filters**
+### **Rendering & Data Fetching: URL‑Driven SSR vs Client Fetch**
 
-**✅ Chosen: Popup-Based Filters**
-- **Evidence**: `FilterPopups.tsx` with click-outside-to-close behavior
-- **Benefits**: Cleaner header layout, mobile-friendly, doesn't affect table width
-- **Tradeoffs**: Requires more user interactions (click → type → apply), harder to see active filters at glance
+**✅ Chosen: URL‑Driven SSR + Server Components**
+- **Evidence**: `app/page.tsx` consumes `searchParams`; rows render in RSC
+- **Benefits**: Better TTFB/SEO, smaller client bundle, built‑in fetch dedupe/caching
+- **Tradeoffs**: More server work per navigation; must design cache/ISR carefully if data becomes dynamic
 
-**❌ Rejected: Inline Header Filters**
-- **Evidence**: No filter inputs in `TableHeader.tsx`, only filter icons
-- **Why Rejected**: Would crowd the header, break responsive design on mobile
+**❌ Rejected: Client Fetch via API Route**
+- **Evidence**: Removed `/api/insurance-claims` and `InsuranceClaimsService`
+- **Why Rejected**: Extra network hop, larger client bundle, harder to get SSR/SEO right
 
-### **Date Formatting: Runtime vs Build-Time**
+### **Interactivity: Small Client Islands vs Full Client Table**
 
-**✅ Chosen: Runtime Formatting with date-fns**
-- **Evidence**: `dateFormatter.ts` utility, `format(parse())` calls in components
-- **Benefits**: Flexible formatting, handles edge cases gracefully
-- **Tradeoffs**: ~15KB bundle increase, ~1-2ms per date conversion overhead
+**✅ Chosen: Client Islands (Header/Footer/Empty State)**
+- **Evidence**: `client/InteractiveHeader`, `client/InteractiveFooter`, `EmptyFilterResults`
+- **Benefits**: Minimal JS; URL becomes the single source of truth for state
+- **Tradeoffs**: Slightly more complex composition between server and client components
 
-**❌ Rejected: Pre-formatted Static Data**
-- **Remnant Found**: Raw "MM/DD/YYYY" strings still in `insurance-data.json`
-- **Why Rejected**: Would require regenerating data for format changes, less flexible
+**❌ Rejected: All‑Client Table**
+- **Why Rejected**: Heavier hydration, larger bundle, worse TTFB for large tables
 
-### **State Management: Built-in React vs External Library**
+### **Streaming & Suspense**
 
-**✅ Chosen: useState + Server State**
-- **Evidence**: Multiple `useState` calls in `InsuranceClaimsTable.tsx`, no Redux/Zustand imports
-- **Benefits**: Zero additional dependencies, simpler debugging, better React 19 compatibility
-- **Tradeoffs**: Verbose state updates, potential prop drilling, no state persistence
+**✅ Chosen: Suspense around client islands**
+- **Evidence**: `ClaimsTableServer` wraps header/footer with Suspense
+- **Benefits**: Faster perceived load; server rows show while controls hydrate
+- **Tradeoffs**: Need to design good fallbacks and avoid layout shifts
 
-**❌ Rejected: Global State Management**
-- **Evidence**: No store files, no context providers for table state
-- **Why Rejected**: Overkill for table-only state, adds complexity
+### **Caching/ISR**
+
+**✅ Current: On‑demand server render (dynamic = 'force-dynamic')**
+- **Rationale**: URL changes always re‑render data from static dataset
+- **Alternative**: `revalidate` + cache tags if/when data becomes mutable
+- **Tradeoffs**: Without a DB/mutations, ISR adds little value today
+
+### **Date Formatting**
+
+**✅ Chosen: Runtime formatting (date‑fns)**
+- **Benefits**: Flexible; localized outputs later
+- **Tradeoffs**: Small CPU cost; acceptable given table size
 
 ## 🚧 Known Gaps & Future Improvements
 
 ### **Current Limitations**
-- **No Persistent Filters**: Page refresh loses filter state
-- **Limited Validation**: Basic input validation on filters
+- **No ISR/Cache Tags**: Page always re-renders; add `revalidate` + tags when data becomes mutable
+- **No generateMetadata**: SEO/title doesn’t reflect filters/sort; can derive from `searchParams`
+- **No Parallel/Intercepting Routes**: Modals and multi-view layouts not implemented yet
+- **No PPR (Partial Prerendering)**: Could improve FCP for static chrome with dynamic body
 
 ### **Planned Enhancements**
-- 📱 **Mobile Optimization**: Better touch interactions
-- ♿ **Accessibility**: Enhanced screen reader support
+- 📱 **Mobile Optimization**: Touch targets, responsive popups, keyboard navigation
+- ♿ **Accessibility**: ARIA for popups, focus management, skip links
+- 📦 **Bundle Analysis**: Add @next/bundle-analyzer to spot split opportunities
+- 🧭 **URL UX**: Add query param sanitization and stable defaults in middleware
 
 ### **Technical Debt**
-- **Error Handling**: More granular error states needed
-- **Loading Optimization**: Implement skeleton loading screens
-- **Cache Strategy**: Add SWR or React Query for better caching
-- **Testing Coverage**: Unit tests for components and API routes
+- **Error Boundaries**: Add error.tsx and not-found.tsx patterns per route group
+- **Loading UX**: Skeleton rows during island hydration; avoid layout shift
+- **Type Sharing**: Extract shared types to a dedicated module to minimize coupling
+- **Testing**: Playwright E2E for URL-driven flows; component tests for header/footer
 
 ## 🤖 AI-Driven Development Process
 
@@ -200,43 +210,6 @@ Implement filter functionality for the table with the following specific UX requ
 - Proper state management for filter persistence
 - Mobile-friendly popup positioning
 
-### **6. Code Architecture Refactoring**
-**Prompt Used:**
-```
-Refactor the `src/components/DataTable.tsx` component to improve code organization and maintainability while preserving all existing functionality. Please implement the following improvements:
-
-1. **Extract Custom Hooks**: Create reusable custom hooks for:
-   - Pagination logic (current page, rows per page, page calculations)
-   - Data filtering and search functionality
-   - Any other stateful logic that could be reused
-
-2. **Component Decomposition**: Split the DataTable into smaller, focused components such as:
-   - A separate header component for the table headers
-   - A dedicated pagination component
-   - Individual row components if beneficial
-   - Any other logical component boundaries you identify
-
-3. **Maintain Existing Functionality**: Ensure that after refactoring:
-   - All current props and their behavior remain unchanged
-   - Pagination works exactly as before
-   - Data rendering and display logic is preserved
-   - CSS classes and styling remain the same
-   - Performance characteristics are maintained or improved
-
-4. **Code Organization**: 
-   - Follow React best practices for component composition
-   - Ensure proper TypeScript typing for all new components and hooks
-   - Maintain clear separation of concerns
-   - Keep the public API of DataTable unchanged so existing usage is not affected
-
-The goal is to make the code more modular, testable, and maintainable without breaking any existing functionality or changing the component's external interface.
-```
-
-**Result**: Complete architectural transformation:
-- Monolithic 450-line component → 15 focused, reusable components
-- Created 4 custom hooks for state management (`usePagination`, `useDataFilter`, `useDataSort`, `usePopup`)
-- Improved maintainability and testability
-- Zero breaking changes to public API
 
 ### **Collaboration Strategy:**
 
