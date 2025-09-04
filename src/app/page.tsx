@@ -3,8 +3,6 @@ import { getInsuranceClaims } from "../lib/insurance-service";
 import ClaimsTableServer from "../components/server/ClaimsTableServer";
 import type { ColumnKey, ClaimStatus } from "../components/ClaimRow";
 
-export const dynamic = "force-dynamic";
-
 interface PageSearchParams {
   page?: string;
   limit?: string;

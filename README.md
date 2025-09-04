@@ -90,13 +90,6 @@ app/page.tsx (Server Component)
 - **Benefits**: Faster perceived load; server rows show while controls hydrate
 - **Tradeoffs**: Need to design good fallbacks and avoid layout shifts
 
-### **Caching/ISR**
-
-**✅ Current: On‑demand server render (dynamic = 'force-dynamic')**
-- **Rationale**: URL changes always re‑render data from static dataset
-- **Alternative**: `revalidate` + cache tags if/when data becomes mutable
-- **Tradeoffs**: Without a DB/mutations, ISR adds little value today
-
 ### **Date Formatting**
 
 **✅ Chosen: Runtime formatting (date‑fns)**
